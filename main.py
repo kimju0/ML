@@ -8,15 +8,13 @@ from scipy.stats import randint
 from sklearn.model_selection import GridSearchCV
 
 
-# main.py
-
 def main():
     # CIFAR-10
     CIFAR_transform_train = transforms.Compose([transforms.ToTensor()])
     CIFAR_transform_test = transforms.Compose([transforms.ToTensor()])
 
-    trainset_CIFAR = datasets.CIFAR10(root='./data', train=True, download=False, transform=CIFAR_transform_train)
-    testset_CIFAR = datasets.CIFAR10(root='./data', train=False, download=False, transform=CIFAR_transform_test)
+    trainset_CIFAR = datasets.CIFAR10(root='./data', train=True, download=True, transform=CIFAR_transform_train)
+    testset_CIFAR = datasets.CIFAR10(root='./data', train=False, download=True, transform=CIFAR_transform_test)
     CIFAR_train = DataLoader(trainset_CIFAR, batch_size=32, shuffle=True, num_workers=2)
     CIFAR_test = DataLoader(testset_CIFAR, batch_size=32, shuffle=False, num_workers=2)
     CIFAR_train_images = []
@@ -43,8 +41,8 @@ def main():
     mnist_train_transform = transforms.Compose([transforms.ToTensor()])
     mnist_test_transform = transforms.Compose([transforms.ToTensor()])
 
-    trainset_mnist = datasets.MNIST(root='./data', train=True, download=False, transform=mnist_train_transform)
-    testset_mnist = datasets.MNIST(root='./data', train=False, download=False, transform=mnist_test_transform)
+    trainset_mnist = datasets.MNIST(root='./data', train=True, download=True, transform=mnist_train_transform)
+    testset_mnist = datasets.MNIST(root='./data', train=False, download=True, transform=mnist_test_transform)
 
     MNIST_train = DataLoader(trainset_mnist, batch_size=32, shuffle=True, num_workers=2)
     MNIST_test = DataLoader(testset_mnist, batch_size=32, shuffle=False, num_workers=2)
@@ -70,21 +68,27 @@ def main():
     MNIST_test_labels = np.concatenate(MNIST_test_labels)
 
     from sklearn.tree import DecisionTreeClassifier
-    tree = DecisionTreeClassifier(criterion='entropy',
-                                  max_depth=12,
-                                  random_state=1)
-    print("학습 시작")
-    tree.fit(CIFAR_train_images, CIFAR_train_labels)
-    print("훈련 세트 정확도: {:.3f}".format(tree.score(CIFAR_train_images, CIFAR_train_labels)))
-    print("테스트 세트 정확도: {:.3f}".format(tree.score(CIFAR_test_images, CIFAR_test_labels)))
-    #reset tree
-    tree = DecisionTreeClassifier(criterion='entropy',
-                                  max_depth=12,
-                                  random_state=1)
-    print("학습 시작")
-    tree.fit(MNIST_train_images, MNIST_train_labels)
-    print("훈련 세트 정확도: {:.3f}".format(tree.score(MNIST_train_images, MNIST_train_labels)))
-    print("테스트 세트 정확도: {:.3f}".format(tree.score(MNIST_test_images, MNIST_test_labels)))
+    for i in (3, 6, 9, 12):
+        print("max_depth: {}".format(i))
+
+        tree = DecisionTreeClassifier(criterion='entropy',
+                                      max_depth=i)
+        tree.fit(CIFAR_train_images, CIFAR_train_labels)
+
+        print("CIFAR-10 훈련 세트 정확도: {:.3f}".format(tree.score(CIFAR_train_images, CIFAR_train_labels)))
+        print("CIFAR-10 테스트 세트 정확도: {:.3f}".format(tree.score(CIFAR_test_images, CIFAR_test_labels)))
+
+        tree = DecisionTreeClassifier(criterion='entropy',
+                                      max_depth=i)
+        tree.fit(MNIST_train_images, MNIST_train_labels)
+        print("MNIST 훈련 세트 정확도: {:.3f}".format(tree.score(MNIST_train_images, MNIST_train_labels)))
+        print("MNIST 테스트 세트 정확도: {:.3f}".format(tree.score(MNIST_test_images, MNIST_test_labels)))
+
+    params_grid = {'min_samples_split': [2, 5, 10],
+                   'min_samples_leaf': [1, 2, 4],
+                   'max_leaf_nodes': [5, 10, None]}
+    grid_search = GridSearchCV(DecisionTreeClassifier(criterion='entropy', max_depth=3), params_grid, cv=5, n_jobs=-1)
+    print(grid_search.fit(MNIST_train_images, MNIST_train_labels))
 
 
 if __name__ == '__main__':
