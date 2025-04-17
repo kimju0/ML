@@ -7,10 +7,20 @@ from sklearn.metrics import accuracy_score
 from sklearn.tree import DecisionTreeClassifier
 from scipy.stats import randint
 from sklearn.model_selection import GridSearchCV
+import os
+
+
+def save_results_to_csv(results_df, filename):
+    if not os.path.exists('result'):
+        os.makedirs('result')
+
+    results_df.to_csv(f'result/{filename}', index=False)
+    print(f"'result/{filename}' 저장.")
 
 
 def decision_tree(CIFAR_train_images, CIFAR_train_labels, CIFAR_test_images, CIFAR_test_labels,
                   MNIST_train_images, MNIST_train_labels, MNIST_test_images, MNIST_test_labels):
+    print("decision tree")
     depths = [3, 6, 9, 12]
     results = []
 
@@ -32,7 +42,7 @@ def decision_tree(CIFAR_train_images, CIFAR_train_labels, CIFAR_test_images, CIF
     results_df = pandas.DataFrame(results)
     print(results_df)
 
-    results_df.to_csv('result/decision_tree_accuracy_results.csv', index=False)
+    save_results_to_csv(results_df, 'decision_tree_accuracy_results.csv')
     print("'result/decision_tree_accuracy_results.csv'에 저장.")
 
     # GridSearchCV
@@ -46,7 +56,7 @@ def decision_tree(CIFAR_train_images, CIFAR_train_labels, CIFAR_test_images, CIF
     print("CIFAR-10 Best cross-validation score:", grid_search.best_score_)
     results = pandas.DataFrame(grid_search.cv_results_)
     print(results[['params', 'mean_test_score', 'std_test_score']])
-    results.to_csv('result/CIFAR-10_training_results.csv', index=False)
+    save_results_to_csv(results, 'CIFAR-10_training_results.csv')
 
     grid_search = GridSearchCV(DecisionTreeClassifier(criterion='entropy'), params_grid, cv=5, n_jobs=-1)
     grid_search.fit(MNIST_train_images, MNIST_train_labels)
@@ -54,11 +64,12 @@ def decision_tree(CIFAR_train_images, CIFAR_train_labels, CIFAR_test_images, CIF
     print("MNIST Best cross-validation score:", grid_search.best_score_)
     results = pandas.DataFrame(grid_search.cv_results_)
     print(results[['params', 'mean_test_score', 'std_test_score']])
-    results.to_csv('result/MNIST_training_results.csv', index=False)
+    save_results_to_csv(results, 'MNIST_training_results.csv')
 
 
 def SVM(CIFAR_train_images, CIFAR_train_labels, CIFAR_test_images, CIFAR_test_labels,
         MNIST_train_images, MNIST_train_labels, MNIST_test_images, MNIST_test_labels):
+    print("SVM")
     kernels = ['linear', 'rbf']
     results = []
     for kernel in kernels:
@@ -77,7 +88,7 @@ def SVM(CIFAR_train_images, CIFAR_train_labels, CIFAR_test_images, CIFAR_test_la
             {'Dataset': 'MNIST', 'Kernel': kernel, 'Train Accuracy': train_accuracy, 'Test Accuracy': test_accuracy})
     results_df = pandas.DataFrame(results)
     print(results_df)
-    results_df.to_csv('result/SVM_accuracy_results.csv', index=False)
+    save_results_to_csv(results_df, 'SVM_accuracy_results.csv')
     print("'result/SVM_accuracy_results.csv'에 저장.")
 
     # GridSearchCV
@@ -92,7 +103,7 @@ def SVM(CIFAR_train_images, CIFAR_train_labels, CIFAR_test_images, CIFAR_test_la
     print("CIFAR-10 Best cross-validation score:", grid_search.best_score_)
     results = pandas.DataFrame(grid_search.cv_results_)
     print(results[['params', 'mean_test_score', 'std_test_score']])
-    results.to_csv(f'result/CIFAR-10_training_SVM_results.csv', index=False)
+    save_results_to_csv(results, 'CIFAR-10_training_SVM_results.csv')
 
     grid_search = GridSearchCV(svm.SVC(), params_grid, cv=5, n_jobs=-1)
     grid_search.fit(MNIST_train_images, MNIST_train_labels)
@@ -100,10 +111,11 @@ def SVM(CIFAR_train_images, CIFAR_train_labels, CIFAR_test_images, CIFAR_test_la
     print("MNIST Best cross-validation score:", grid_search.best_score_)
     results = pandas.DataFrame(grid_search.cv_results_)
     print(results[['params', 'mean_test_score', 'std_test_score']])
-    results.to_csv(f'result/MNIST_SVM_training_results.csv', index=False)
+    save_results_to_csv(results, 'MNIST_SVM_training_results.csv')
 
 
 def load_data():
+    print("data load")
     # CIFAR-10
     CIFAR_transform_train = transforms.Compose([transforms.ToTensor()])
     CIFAR_transform_test = transforms.Compose([transforms.ToTensor()])
@@ -170,6 +182,9 @@ def main():
         MNIST_train_images, MNIST_train_labels, MNIST_test_images, MNIST_test_labels = load_data()
 
     pandas.set_option('display.max_columns', None)
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    os.chdir(script_dir)
+
     decision_tree(CIFAR_train_images, CIFAR_train_labels, CIFAR_test_images, CIFAR_test_labels,
                   MNIST_train_images, MNIST_train_labels, MNIST_test_images, MNIST_test_labels)
 
