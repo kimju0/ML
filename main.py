@@ -96,7 +96,7 @@ def SVM(CIFAR_train_images, CIFAR_train_labels, CIFAR_test_images, CIFAR_test_la
         'C': [0.1, 10],
         'kernel': ['linear', 'rbf']
     }
-    grid_search = GridSearchCV(svm.SVC(), params_grid, cv=5, n_jobs=-1)
+    grid_search = GridSearchCV(svm.SVC(), params_grid, cv=3, n_jobs=-1)
     grid_search.fit(CIFAR_train_images, CIFAR_train_labels)
     print("CIFAR-10 Best parameters:", grid_search.best_params_)
     print("CIFAR-10 Best cross-validation score:", grid_search.best_score_)
@@ -184,8 +184,8 @@ def main():
     script_dir = os.path.dirname(os.path.abspath(__file__))
     os.chdir(script_dir)
 
-    decision_tree(CIFAR_train_images, CIFAR_train_labels, CIFAR_test_images, CIFAR_test_labels,
-                  MNIST_train_images, MNIST_train_labels, MNIST_test_images, MNIST_test_labels)
+    #decision_tree(CIFAR_train_images, CIFAR_train_labels, CIFAR_test_images, CIFAR_test_labels,
+    #              MNIST_train_images, MNIST_train_labels, MNIST_test_images, MNIST_test_labels)
 
     SVM(CIFAR_train_images, CIFAR_train_labels, CIFAR_test_images, CIFAR_test_labels,
         MNIST_train_images, MNIST_train_labels, MNIST_test_images, MNIST_test_labels)
