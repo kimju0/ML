@@ -93,8 +93,7 @@ def SVM(CIFAR_train_images, CIFAR_train_labels, CIFAR_test_images, CIFAR_test_la
 
     # GridSearchCV
     params_grid = {
-        'C': [0.1, 1, 10],
-        'gamma': ['scale', 'auto'],
+        'C': [0.1, 10],
         'kernel': ['linear', 'rbf']
     }
     grid_search = GridSearchCV(svm.SVC(), params_grid, cv=5, n_jobs=-1)
