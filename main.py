@@ -104,7 +104,7 @@ def SVM(CIFAR_train_images, CIFAR_train_labels, CIFAR_test_images, CIFAR_test_la
     print(results[['params', 'mean_test_score', 'std_test_score']])
     save_results_to_csv(results, 'CIFAR-10_training_SVM_results.csv')
 
-    grid_search = GridSearchCV(svm.SVC(), params_grid, cv=5, n_jobs=-1)
+    grid_search = GridSearchCV(svm.SVC(), params_grid, cv=3, n_jobs=-1)
     grid_search.fit(MNIST_train_images, MNIST_train_labels)
     print("MNIST Best parameters:", grid_search.best_params_)
     print("MNIST Best cross-validation score:", grid_search.best_score_)
@@ -180,12 +180,11 @@ def main():
     CIFAR_train_images, CIFAR_train_labels, CIFAR_test_images, CIFAR_test_labels, \
         MNIST_train_images, MNIST_train_labels, MNIST_test_images, MNIST_test_labels = load_data()
 
-    pandas.set_option('display.max_columns', None)
     script_dir = os.path.dirname(os.path.abspath(__file__))
     os.chdir(script_dir)
 
-    #decision_tree(CIFAR_train_images, CIFAR_train_labels, CIFAR_test_images, CIFAR_test_labels,
-    #              MNIST_train_images, MNIST_train_labels, MNIST_test_images, MNIST_test_labels)
+    decision_tree(CIFAR_train_images, CIFAR_train_labels, CIFAR_test_images, CIFAR_test_labels,
+                  MNIST_train_images, MNIST_train_labels, MNIST_test_images, MNIST_test_labels)
 
     SVM(CIFAR_train_images, CIFAR_train_labels, CIFAR_test_images, CIFAR_test_labels,
         MNIST_train_images, MNIST_train_labels, MNIST_test_images, MNIST_test_labels)
